@@ -1,86 +1,139 @@
-FROM ubuntu
-# set timezone
-ENV TZ 'Asia/Shanghai'
-RUN echo $TZ > /etc/timezone && \
-apt-get update && apt-get install -y tzdata && \
-rm /etc/localtime && \
-ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
-dpkg-reconfigure -f noninteractive tzdata && \
-apt-get clean
+# by aspirin2d
+FROM alpine:latest as builder
 
-# install zsh
-RUN apt-get install zsh -y
+MAINTAINER aspirin2d <sleep2death@gmail.com>
 
-# install git and wget
-RUN apt-get install wget git -y
+# Thanks for MaYun Baba
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 
-# install sudo
-RUN apt-get install sudo
+WORKDIR /tmp
 
-# add user: dev
-RUN adduser --disabled-password --gecos '' dev
-RUN adduser dev sudo
-RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+# Install dependencies
+RUN apk add --no-cache \
+    build-base \
+    ctags \
+    git \
+    libx11-dev \
+    libxpm-dev \
+    libxt-dev \
+    make \
+    ncurses-dev \
+    python \
+    python-dev
 
-USER dev
+# Build vim from git source
+RUN git clone --depth=1 https://github.com/vim/vim \
+ && cd vim \
+ && ./configure \
+    --disable-gui \
+    --disable-netbeans \
+    --enable-multibyte \
+    --enable-pythoninterp \
+    --with-features=big \
+    --with-python-config-dir=/usr/lib/python2.7/config \
+ && make install
 
-# install oh-my-zsh
-RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
-CMD ['zsh']
+ FROM alpine:latest
 
-# install golang
-RUN sudo apt-get install golang-go -y
-RUN mkdir ~/go
-RUN mkdir ~/go/pkg ~/go/bin ~/go/src
+# Thanks for MaYun Baba
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 
-# set gopath
-ENV GOPATH /home/dev/go
-ENV PATH /home/dev/go/bin:$PATH
+COPY --from=builder /usr/local/bin/ /usr/local/bin
+COPY --from=builder /usr/local/share/vim/ /usr/local/share/vim/
+# NOTE: man page is ignored
 
-# install golang dep
-RUN sudo apt-get install curl -y
-RUN go get -u github.com/golang/dep/cmd/dep
+RUN apk add --no-cache \
+diffutils \
+libice \
+libsm \
+libx11 \
+libxt \
+ncurses
 
-RUN git clone --depth=1 https://github.com/golang/tools.git $GOPATH/src/golang.org/x/tools && \
-    git clone --depth=1 https://github.com/golang/net.git $GOPATH/src/golang.org/x/net && \
-    git clone --depth=1 https://github.com/golang/lint.git $GOPATH/src/golang.org/x/lint
+# User config
+ENV UID="1000" \
+    UNAME="developer" \
+    GID="1000" \
+    GNAME="developer" \
+    SHELL="/bin/bash" \
+    UHOME=/home/developer
 
-RUN go get -v github.com/klauspost/asmfmt/cmd/asmfmt
-RUN go get -v github.com/derekparker/delve/cmd/dlv
-RUN go get -v github.com/kisielk/errcheck
-RUN go get -v github.com/davidrjenni/reftools/cmd/fillstruct
-RUN go get -v github.com/mdempsky/gocode
-# RUN go get -v github.com/stamblerre/gocode 
-RUN go get -v github.com/rogpeppe/godef
-RUN go get -v github.com/zmb3/gogetdoc
-RUN go get -v golang.org/x/tools/cmd/goimports
-RUN go get -v golang.org/x/lint/golint
-RUN go get -v github.com/alecthomas/gometalinter
-RUN go get -v github.com/fatih/gomodifytags
-RUN go get -v golang.org/x/tools/cmd/gorename
-RUN go get -v github.com/jstemmer/gotags
-RUN go get -v golang.org/x/tools/cmd/guru
-RUN go get -v github.com/josharian/impl
-RUN go get -v honnef.co/go/tools/cmd/keyify
-RUN go get -v github.com/fatih/motion
-RUN go get -v github.com/koron/iferr
+# Used to configure YouCompleteMe
+ENV GOROOT="/usr/lib/go"
+ENV GOBIN="$GOROOT/bin"
+ENV GOPATH="$UHOME/workspace"
+ENV PATH="$PATH:$GOBIN:$GOPATH/bin"
 
-# COPY --chown=dev my_configs.vim /home/dev/.vim_runtime/my_configs.vim
-# install vim
-RUN sudo apt-get install vim-nox -y
-RUN git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+# User
+RUN apk --no-cache add sudo \
+# Create HOME dir
+    && mkdir -p "${UHOME}" \
+    && chown "${UID}":"${GID}" "${UHOME}" \
+# Create user
+    && echo "${UNAME}:x:${UID}:${GID}:${UNAME},,,:${UHOME}:${SHELL}" \
+    >> /etc/passwd \
+    && echo "${UNAME}::17032:0:99999:7:::" \
+    >> /etc/shadow \
+# No password sudo
+    && echo "${UNAME} ALL=(ALL) NOPASSWD: ALL" \
+    > "/etc/sudoers.d/${UNAME}" \
+    && chmod 0440 "/etc/sudoers.d/${UNAME}" \
+# Create group
+    && echo "${GNAME}:x:${GID}:${UNAME}" \
+    >> /etc/group
 
-# custom vimrc
-RUN git clone https://github.com/sleep2death/vimrc.git ~/vimrc
-RUN cp ~/vimrc/.vimrc ~/.vimrc
+# Vim plugins deps
+RUN apk --update add \
+    bash \
+    ctags \
+    curl \
+    git \
+    ncurses-terminfo \
+    python \
+# YouCompleteMe
+    && apk add --virtual build-deps \
+    build-base \
+    cmake \
+    go \
+    llvm \
+    perl \
+    python-dev \
+    && git clone --depth 1  https://github.com/Valloric/YouCompleteMe \
+    $UHOME/.vim/bundle/YouCompleteMe/ \
+    && cd $UHOME/.vim/bundle/YouCompleteMe \
+    && git submodule update --init --recursive \
+    && $UHOME/.vim/bundle/YouCompleteMe/install.py --gocode-completer \
 
-# install plugin
-RUN vim +PluginInstall +GoInstallBinaries +qall
+# Cleanup
+    && apk del build-deps \
+    && apk add \
+    libxt \
+    libx11 \
+    libstdc++ \
+    && rm -rf \
+    $UHOME/.vim/bundle/YouCompleteMe/third_party/ycmd/clang_includes \
+    $UHOME/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp \
+    /usr/lib/go \
+    /var/cache/* \
+    /var/log/* \
+    /var/tmp/* \
+    && mkdir /var/cache/apk
 
-# Compile Ycm
-RUN sudo apt install build-essential cmake python3-dev -y
-WORKDIR /home/dev/.vim/bundle/YouCompleteMe/
-RUN sudo apt-get install build-essential cmake python3-dev
-RUN python3 install.py --go-completer
+# copy .vimrc
+# USER $UNAME
+COPY .vimrc $UHOME/.vimrc
+# RUN sudo chown -R developer:developer /home/developer/ \
+RUN mkdir -p $UHOME/.vim/bundle \
+    && cd $UHOME/.vim/bundle \
+    && git clone --depth=1 https://github.com/VundleVim/Vundle.vim \
+    && git clone --depth=1 https://github.com/scrooloose/nerdtree \
+    && git clone --depth=1 https://github.com/xuyuanp/nerdtree-git-plugin \
+    && git clone --depth=1 https://github.com/tpope/vim-surround \
+    && git clone --depth=1 https://github.com/altercation/vim-colors-solarized \
+    && git clone --depth=1 https://github.com/kien/ctrlp.vim \
+    && git clone --depth=1 https://github.com/tpope/vim-commentary \
+    && git clone --depth=1 https://github.com/itchyny/lightline.vim
+    # && vim +PluginInstall +qall
 
-WORKDIR /home/dev/go/src/
+USER $UNAME
+WORKDIR $UHOME/workspace
