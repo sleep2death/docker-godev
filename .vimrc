@@ -26,7 +26,7 @@ Plugin 'tpope/vim-commentary'
 
 Plugin 'itchyny/lightline.vim'
 
-" Plugin 'fatih/vim-go'
+Plugin 'fatih/vim-go'
 
 Plugin 'Valloric/YouCompleteMe'
 
@@ -438,6 +438,8 @@ let g:lightline = {
       \ }
 
 nnoremap <leader>cc :lclose<CR>
+
+" colorscheme molokai
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => My Stuff
