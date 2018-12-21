@@ -28,3 +28,6 @@
 [submodule "vimbundle/YouCompleteMe"]
 	path = vimbundle/YouCompleteMe
 	url = https://github.com/Valloric/YouCompleteMe
+[submodule "go-src/tools"]
+	path = go-src/tools
+	url = https://github.com/golang/tools

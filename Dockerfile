@@ -6,13 +6,14 @@ ENV UID="1000" \
     UNAME="developer" \
     GID="1000" \
     GNAME="developer" \
-    SHELL="/bin/bash" \
+    SHELL="/bin/zsh" \
     UHOME="/home/developer"
 # Used to configure YouCompleteMe
 ENV GOROOT="/usr/lib/go"
 ENV GOPATH="$UHOME/go"
 ENV GOBIN="$GOPATH/bin"
 ENV PATH="$PATH:$GOBIN:$GOPATH/bin"
+ENV TERM=xterm-256color
 
 # User
 RUN apk --no-cache add sudo \
@@ -35,12 +36,12 @@ RUN apk --no-cache add sudo \
     >> /etc/group
 
 COPY .vimrc $UHOME/.vimrc
-COPY vim-bundle $UHOME/.vim/bundle
-COPY go-source $UHOME/go/src
+COPY vimbundle $UHOME/.vim/bundle
+COPY go-src/tools $UHOME/go/src/golang.org/x/tools
 
 # Vim plugins deps
 RUN apk --no-cache add \
-    bash \
+    zsh \
     git \
     go \
     musl-dev \
@@ -56,8 +57,9 @@ RUN apk --no-cache add \
 # vim plugins
 # YouCompleteMe compile
     && python $UHOME/.vim/bundle/YouCompleteMe/install.py --gocode-completer \
-# goimports compile
+# go tools install
     && cd $GOPATH/src/golang.org/x/tools/cmd/goimports && go install \
+    && cd $GOPATH/src/golang.org/x/tools/cmd/guru && go install \
 # Cleanup
     && apk del build-deps \
     && apk add \
@@ -67,13 +69,12 @@ RUN apk --no-cache add \
     && rm -rf \
     $UHOME/.vim/bundle/YouCompleteMe/third_party/ycmd/clang_includes \
     $UHOME/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp \
-    $UHOME/.vim/bundle/YouCompleteMe/.git \
     $GOPATH/src/* \
     /var/cache/* \
     /var/log/* \
     /var/tmp/* \
+    && cd $UHOME && find . | grep "\.git/" | xargs rm -rf \
     && chown -R $UNAME:$GNAME $GOPATH
 
-# copy .vimrc
-ENV TERM=xterm-256color
 USER $UNAME
+RUN cd $UHOME && wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
