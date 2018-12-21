@@ -19,6 +19,8 @@ Plugin 'ctrlpvim/ctrlp.vim'
 
 Plugin 'w0rp/ale'
 
+Plugin 'tomasr/molokai'
+
 " Plugin 'junegunn/goyo.vim'
 " Plugin 'amix/vim-zenroom2'
 

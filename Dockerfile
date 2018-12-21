@@ -62,6 +62,7 @@ RUN apk --no-cache add \
     && cd $GOPATH/src/golang.org/x/tools/cmd/goimports && go install \
     && cd $GOPATH/src/golang.org/x/tools/cmd/guru && go install \
     && cd $GOPATH/src/github.com/stamblerre/gocode && go install \
+    && go get -u github.com/golang/dep/cmd/dep \
 # Cleanup
     && apk del build-deps \
     && apk add \
