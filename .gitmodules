@@ -31,3 +31,9 @@
 [submodule "go-src/tools"]
 	path = go-src/tools
 	url = https://github.com/golang/tools
+[submodule "vimbundle/vim-fugitive"]
+	path = vimbundle/vim-fugitive
+	url = https://github.com/tpope/vim-fugitive
+[submodule "vimbundle/vim-surround"]
+	path = vimbundle/vim-surround
+	url = https://github.com/tpope/vim-surround
