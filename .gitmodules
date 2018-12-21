@@ -43,3 +43,6 @@
 [submodule "go-src/github.com/stamblerre/gocode"]
 	path = go-src/github.com/stamblerre/gocode
 	url = https://github.com/stamblerre/gocode
+[submodule "vimbundle/YouCompleteMe"]
+	path = vimbundle/YouCompleteMe
+	url = https://github.com/Valloric/YouCompleteMe
