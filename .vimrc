@@ -439,7 +439,8 @@ let g:lightline = {
 
 nnoremap <leader>cc :lclose<CR>
 
-" colorscheme molokai
+let g:molokai_original = 1
+colorscheme molokai
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " => My Stuff

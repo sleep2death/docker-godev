@@ -16,10 +16,11 @@ RUN apk add --no-cache \
     libx11-dev \
     libxpm-dev \
     libxt-dev \
+    lua-dev \
+    lua \
+    luajit-dev \
     make \
-    ncurses-dev \
-    python \
-    python-dev
+    ncurses-dev
 
 # Build vim from git source
 RUN git clone --depth 1 https://github.com/vim/vim \
@@ -28,9 +29,8 @@ RUN git clone --depth 1 https://github.com/vim/vim \
     --disable-gui \
     --disable-netbeans \
     --enable-multibyte \
-    --enable-pythoninterp \
+    --enable-luainterp \
     --with-features=big \
-    --with-python-config-dir=/usr/lib/python2.7/config \
  && make install
 
 FROM alpine:latest
@@ -44,6 +44,7 @@ COPY --from=builder /usr/local/share/vim/ /usr/local/share/vim/
 
 RUN apk add --no-cache \
     diffutils \
+    lua \
     libice \
     libsm \
     libx11 \

@@ -1,12 +1,12 @@
 # by aspirin2d
-FROM alpine-vim-base:latest
+FROM alpine-vim:latest
 
 # User config
 ENV UID="1000" \
     UNAME="developer" \
     GID="1000" \
     GNAME="developer" \
-    SHELL="/bin/zsh" \
+    SHELL="/bin/bash" \
     UHOME="/home/developer"
 # Used to configure YouCompleteMe
 ENV GOROOT="/usr/lib/go"
@@ -38,10 +38,11 @@ RUN apk --no-cache add sudo \
 COPY .vimrc $UHOME/.vimrc
 COPY vimbundle $UHOME/.vim/bundle
 COPY go-src/tools $UHOME/go/src/golang.org/x/tools
+COPY go-src/github.com $UHOME/go/src/github.com
 
 # Vim plugins deps
 RUN apk --no-cache add \
-    zsh \
+    bash \
     git \
     go \
     musl-dev \
@@ -60,6 +61,7 @@ RUN apk --no-cache add \
 # go tools install
     && cd $GOPATH/src/golang.org/x/tools/cmd/goimports && go install \
     && cd $GOPATH/src/golang.org/x/tools/cmd/guru && go install \
+    && cd $GOPATH/src/github.com/stamblerre/gocode && go install \
 # Cleanup
     && apk del build-deps \
     && apk add \
@@ -75,6 +77,3 @@ RUN apk --no-cache add \
     /var/tmp/* \
     && cd $UHOME && find . | grep "\.git/" | xargs rm -rf \
     && chown -R $UNAME:$GNAME $GOPATH
-
-USER $UNAME
-RUN cd $UHOME && wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true

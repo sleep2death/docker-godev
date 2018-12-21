@@ -25,9 +25,6 @@
 [submodule "vim-bundle-bak/vimbundle/vim-surround"]
 	path = vim-bundle-bak/vimbundle/vim-surround
 	url = https://github.com/tpope/vim-surround
-[submodule "vimbundle/YouCompleteMe"]
-	path = vimbundle/YouCompleteMe
-	url = https://github.com/Valloric/YouCompleteMe
 [submodule "go-src/tools"]
 	path = go-src/tools
 	url = https://github.com/golang/tools
@@ -37,3 +34,12 @@
 [submodule "vimbundle/vim-surround"]
 	path = vimbundle/vim-surround
 	url = https://github.com/tpope/vim-surround
+[submodule "vimbundle/molokai"]
+	path = vimbundle/molokai
+	url = https://github.com/tomasr/molokai.git
+[submodule "go-src/github.com/mdempsky/gocode"]
+	path = go-src/github.com/mdempsky/gocode
+	url = https://github.com/mdempsky/gocode
+[submodule "go-src/github.com/stamblerre/gocode"]
+	path = go-src/github.com/stamblerre/gocode
+	url = https://github.com/stamblerre/gocode
