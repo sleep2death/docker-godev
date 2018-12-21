@@ -1,0 +1,30 @@
+[submodule "vimbundle/Vundle.vim"]
+	path = vimbundle/Vundle.vim
+	url = https://github.com/VundleVim/Vundle.vim.git
+[submodule "vimbundle/ale"]
+	path = vimbundle/ale
+	url = https://github.com/w0rp/ale.git
+[submodule "vimbundle/lightline.vim"]
+	path = vimbundle/lightline.vim
+	url = https://github.com/itchyny/lightline.vim
+[submodule "vimbundle/ctrlp.vim"]
+	path = vimbundle/ctrlp.vim
+	url = https://github.com/kien/ctrlp.vim
+[submodule "vimbundle/nerdtree-git-plugin"]
+	path = vimbundle/nerdtree-git-plugin
+	url = https://github.com/Xuyuanp/nerdtree-git-plugin
+[submodule "vimbundle/nerdtree"]
+	path = vimbundle/nerdtree
+	url = https://github.com/scrooloose/nerdtree
+[submodule "vimbundle/vim-commentary"]
+	path = vimbundle/vim-commentary
+	url = https://github.com/tpope/vim-commentary
+[submodule "vimbundle/vim-go"]
+	path = vimbundle/vim-go
+	url = https://github.com/fatih/vim-go
+[submodule "vim-bundle-bak/vimbundle/vim-surround"]
+	path = vim-bundle-bak/vimbundle/vim-surround
+	url = https://github.com/tpope/vim-surround
+[submodule "vimbundle/YouCompleteMe"]
+	path = vimbundle/YouCompleteMe
+	url = https://github.com/Valloric/YouCompleteMe
